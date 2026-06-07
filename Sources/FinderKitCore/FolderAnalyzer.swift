@@ -56,11 +56,34 @@ public enum FolderAnalyzer {
       }
     }
 
-    return FolderStats(
+    let stats = FolderStats(
       rootURL: rootURL,
       fileCount: fileCount,
       directoryCount: directoryCount,
       totalBytes: totalBytes
     )
+
+    if stats.isEmpty, hasVisibleChildren(at: rootURL, skipsHiddenFiles: skipsHiddenFiles) {
+      throw FinderKitError.sandboxAccessDenied(rootURL)
+    }
+
+    return stats
+  }
+
+  private static func hasVisibleChildren(
+    at rootURL: URL,
+    skipsHiddenFiles: Bool
+  ) -> Bool {
+    let options: FileManager.DirectoryEnumerationOptions = skipsHiddenFiles
+      ? [.skipsHiddenFiles]
+      : []
+    guard let children = try? FileManager.default.contentsOfDirectory(
+      at: rootURL,
+      includingPropertiesForKeys: nil,
+      options: options
+    ) else {
+      return false
+    }
+    return !children.isEmpty
   }
 }

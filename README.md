@@ -18,9 +18,26 @@ Arquitetura preparada para novas ações no mesmo app (host + extensão Finder S
 ### Sem Xcode (release pré-compilada)
 
 1. Baixe `FinderKit-{versão}.zip` em [GitHub Releases](https://github.com/alexandrehpiva/finder-kit/releases)
-2. Extraia e mova `FinderKit.app` para `~/Applications`
-3. Ative **Ajustes → Extensões → Finder → Finder Kit**
-4. Opcional: copie `finder-kit-*-macos-arm64` para `~/.local/bin/finder-kit`
+2. Extraia e mova `FinderKit.app` para **Aplicativos** (`/Applications`) ou `~/Applications` — são pastas diferentes no macOS
+3. **Primeira abertura (Gatekeeper):** o app é assinado ad-hoc no CI, sem notarização Apple — ao baixar da internet o macOS pode bloquear. Use **uma** das opções:
+   - **Recomendado:** botão direito em `FinderKit.app` → **Abrir** → confirmar **Abrir** no diálogo (só na primeira vez; depois o duplo clique funciona)
+   - Ou no Terminal (ajuste o caminho se instalou em `~/Applications`): `xattr -c /Applications/FinderKit.app` (ou `find /Applications/FinderKit.app -exec xattr -c {} \;`) e depois abra com botão direito → **Abrir**
+   - Ou, após uma tentativa bloqueada: **Ajustes do Sistema → Privacidade e Segurança → Abrir mesmo assim**
+4. Abra o app uma vez (botão direito → **Abrir**)
+5. **Ative a extensão** (obrigatório ao instalar pelo zip — o `make install` faz isso automaticamente):
+
+   ```bash
+   bash /caminho/para/finder-kit/scripts/activate-extension.sh
+   # ou manualmente:
+   pluginkit -a "/Applications/FinderKit.app/Contents/PlugIns/FinderKitExtension.appex"
+   pluginkit -e use -i com.alexandredias.finder-kit.finder-sync
+   killall Finder
+   ```
+
+6. **Opcional — conferir nos Ajustes** (macOS Sequoia/Tahoe; o caminho antigo “Extensões → Finder” não existe mais):
+   **Ajustes do Sistema → Geral → Itens de Início de Sessão e Extensões** → clique no **(i)** ao lado de **Extensões do Finder** → ligue **FinderKit** (nome exibido, sem espaço)
+
+7. Opcional: copie `finder-kit-*-macos-arm64` para `~/.local/bin/finder-kit` (`chmod +x`)
 
 ### Com Xcode (desenvolvimento)
 
@@ -37,11 +54,9 @@ Instala:
 | CLI | `~/.local/bin/finder-kit` |
 | App (host + extensão) | `~/Applications/FinderKit.app` |
 
-Depois do `make install`, ative a extensão:
+Depois do `make install`, a extensão já é registrada via `pluginkit`. Se o menu não aparecer, rode `killall Finder`.
 
-**Ajustes do Sistema → Extensões → Finder → Finder Kit** (ligar).
-
-Reabra o Finder (ou faça logout/login) se o item não aparecer no menu.
+Para conferir nos Ajustes: **Geral → Itens de Início de Sessão e Extensões → (i) Extensões do Finder → FinderKit**.
 
 ## Uso
 

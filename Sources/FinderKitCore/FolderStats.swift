@@ -20,4 +20,8 @@ public struct FolderStats: Sendable, Equatable {
     public var summaryLine: String {
         "\(formattedSize) · \(fileCount) arquivo(s) · \(directoryCount) pasta(s)"
     }
+
+    public var isEmpty: Bool {
+        fileCount == 0 && directoryCount == 0 && totalBytes == 0
+    }
 }

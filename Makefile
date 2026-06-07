@@ -40,7 +40,7 @@ install: build install-cli install-app register-extension
 	@echo "Finder Kit $(VERSION) instalado:"
 	@echo "  CLI:  $(INSTALL_DIR)/$(BINARY_NAME)"
 	@echo "  App:  $(APP_BUNDLE)"
-	@echo "  Ative a extensão: Ajustes → Extensões → Finder → Finder Kit"
+	@echo "  Extensão registrada. Se precisar: Ajustes → Geral → Itens de Início e Extensões → (i) Extensões do Finder → FinderKit"
 
 install-cli:
 	@mkdir -p $(INSTALL_DIR)

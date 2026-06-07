@@ -35,7 +35,10 @@ final class FinderKitSync: FIFinderSync {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let result: Result<FolderStats, Error>
             do {
-                result = .success(try FolderAnalyzer.analyze(at: folderURL))
+                let stats = try SecurityScopedAccess.withAccess(to: folderURL) {
+                    try FolderAnalyzer.analyze(at: folderURL)
+                }
+                result = .success(stats)
             } catch {
                 result = .failure(error)
             }

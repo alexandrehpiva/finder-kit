@@ -35,6 +35,12 @@ jobs:
           swift build -c release
           make build-app
 
+      - name: Ad-hoc sign app bundle
+        run: |
+          APP="build/DerivedData/Build/Products/Release/FinderKit.app"
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict "$APP"
+
       - name: Package artifacts
         run: |
           VERSION="${{ steps.ver.outputs.tag }}"

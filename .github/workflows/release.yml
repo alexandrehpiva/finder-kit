@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  release:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version from tag
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ -f VERSION ]; then
+            FILE_VER="$(tr -d ' \n' < VERSION)"
+            if [ "$FILE_VER" != "$TAG" ]; then
+              echo "aviso: VERSION ($FILE_VER) difere da tag ($TAG)"
+            fi
+          fi
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build app + CLI
+        run: |
+          swift build -c release
+          make build-app
+
+      - name: Package artifacts
+        run: |
+          VERSION="${{ steps.ver.outputs.tag }}"
+          mkdir -p dist
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/DerivedData/Build/Products/Release/FinderKit.app \
+            "dist/FinderKit-${VERSION}.zip"
+          cp .build/release/finder-kit "dist/finder-kit-${VERSION}-macos-arm64"
+          chmod +x "dist/finder-kit-${VERSION}-macos-arm64"
+          shasum -a 256 dist/* > "dist/SHA256SUMS-${VERSION}.txt"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*
+          generate_release_notes: true
+
+      - name: Upload to S3 (OIDC)
+        if: vars.S3_RELEASES_BUCKET != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASE_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync release zip to S3
+        if: vars.S3_RELEASES_BUCKET != ''
+        run: |
+          VERSION="${{ steps.ver.outputs.tag }}"
+          aws s3 cp "dist/FinderKit-${VERSION}.zip" \
+            "s3://${{ vars.S3_RELEASES_BUCKET }}/releases/${VERSION}/FinderKit.zip"
+          aws s3 cp "dist/finder-kit-${VERSION}-macos-arm64" \
+            "s3://${{ vars.S3_RELEASES_BUCKET }}/releases/${VERSION}/finder-kit-macos-arm64"
+          aws s3 cp "dist/SHA256SUMS-${VERSION}.txt" \
+            "s3://${{ vars.S3_RELEASES_BUCKET }}/releases/${VERSION}/SHA256SUMS.txt"

@@ -1,0 +1,64 @@
+name: FinderKit
+options:
+  bundleIdPrefix: com.alexandredias
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  finder-kit:
+    path: .
+
+targets:
+  FinderKit:
+    type: application
+    platform: macOS
+    sources:
+      - FinderKitApp
+    dependencies:
+      - package: finder-kit
+        product: FinderKitCore
+      - target: FinderKitExtension
+        embed: true
+    settings:
+      PRODUCT_NAME: FinderKit
+      PRODUCT_BUNDLE_IDENTIFIER: com.alexandredias.finder-kit
+      INFOPLIST_FILE: bundle/FinderKit-Info.plist
+      CODE_SIGN_ENTITLEMENTS: FinderKitApp/FinderKit.entitlements
+      MARKETING_VERSION: "1.0.0"
+      CURRENT_PROJECT_VERSION: "1"
+      SWIFT_VERSION: "5.9"
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: ""
+
+  FinderKitExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - FinderKitExtension
+    dependencies:
+      - package: finder-kit
+        product: FinderKitCore
+    settings:
+      PRODUCT_NAME: FinderKitExtension
+      PRODUCT_BUNDLE_IDENTIFIER: com.alexandredias.finder-kit.finder-sync
+      INFOPLIST_FILE: bundle/FinderKitExtension-Info.plist
+      CODE_SIGN_ENTITLEMENTS: FinderKitExtension/FinderKitExtension.entitlements
+      MARKETING_VERSION: "1.0.0"
+      CURRENT_PROJECT_VERSION: "1"
+      SWIFT_VERSION: "5.9"
+      CODE_SIGN_STYLE: Automatic
+      DEVELOPMENT_TEAM: ""
+      APPLICATION_EXTENSION_API_ONLY: YES
+
+schemes:
+  FinderKit:
+    build:
+      targets:
+        FinderKit: all
+    run:
+      config: Debug
+  FinderKitExtension:
+    build:
+      targets:
+        FinderKitExtension: all

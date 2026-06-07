@@ -5,6 +5,8 @@ public enum FinderKitError: Error, LocalizedError, Sendable {
     case enumerationFailed(URL, underlying: Error)
     case noSelection
     case sandboxAccessDenied(URL)
+    case releaseCheckFailed(String)
+    case upgradeFailed(String)
 
     public var errorDescription: String? {
         switch self {
@@ -19,6 +21,10 @@ public enum FinderKitError: Error, LocalizedError, Sendable {
             Sem permissão para ler o conteúdo de “\(url.lastPathComponent)”.
             Reative a extensão FinderKit nos Ajustes do Sistema ou reinstale o app.
             """
+        case .releaseCheckFailed(let reason):
+            return "Não foi possível verificar atualizações: \(reason)"
+        case .upgradeFailed(let reason):
+            return "Falha ao atualizar: \(reason)"
         }
     }
 }

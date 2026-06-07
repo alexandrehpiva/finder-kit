@@ -44,7 +44,9 @@ install: build install-cli install-app register-extension
 
 install-cli:
 	@mkdir -p $(INSTALL_DIR)
+	@mkdir -p $(HOME)/.local/share/finder-kit
 	install -m 755 $(RELEASE_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
+	install -m 755 scripts/upgrade.sh $(HOME)/.local/share/finder-kit/upgrade.sh
 
 install-app:
 	@mkdir -p $(APPS_DIR)

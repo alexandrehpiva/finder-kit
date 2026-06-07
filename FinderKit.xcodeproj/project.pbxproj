@@ -12,6 +12,8 @@
 		34C165FB4407991592482DE8 /* FinderKitExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 85B9E158BE2781BC274D19DD /* FinderKitExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		615407FCCDAB147E2EFB5408 /* FinderKitApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4671CA1E0583662F686D873 /* FinderKitApp.swift */; };
 		759A976A6611EDFCB1821EA9 /* FinderKitCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0E59BE54B8321360692B0A14 /* FinderKitCore */; };
+		85BAADB609DC4AF2E55CDCD5 /* upgrade.sh in Resources */ = {isa = PBXBuildFile; fileRef = F7B11DCBCE5F10595D9A3065 /* upgrade.sh */; };
+		DF3500F1616A29CB2615CB18 /* UpdateCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2D4FEA558DED7FC573D2065 /* UpdateCoordinator.swift */; };
 		E0A09EF8575F29A6F04B7C66 /* FinderSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = D896BC1F4B98529BB92C6EF0 /* FinderSync.swift */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +50,8 @@
 		85B9E158BE2781BC274D19DD /* FinderKitExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FinderKitExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4671CA1E0583662F686D873 /* FinderKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderKitApp.swift; sourceTree = "<group>"; };
 		D896BC1F4B98529BB92C6EF0 /* FinderSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderSync.swift; sourceTree = "<group>"; };
+		E2D4FEA558DED7FC573D2065 /* UpdateCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateCoordinator.swift; sourceTree = "<group>"; };
+		F7B11DCBCE5F10595D9A3065 /* upgrade.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = upgrade.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +74,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		46F8210AFB8036CED1919D03 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F7B11DCBCE5F10595D9A3065 /* upgrade.sh */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		502E09A698B90EF31BDF181D /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -93,6 +105,8 @@
 				75C072067B49412C68A2A6CF /* FinderKit.entitlements */,
 				A4671CA1E0583662F686D873 /* FinderKitApp.swift */,
 				75E01BDA36F250890D5840A7 /* SettingsView.swift */,
+				E2D4FEA558DED7FC573D2065 /* UpdateCoordinator.swift */,
+				46F8210AFB8036CED1919D03 /* Resources */,
 			);
 			path = FinderKitApp;
 			sourceTree = "<group>";
@@ -143,6 +157,7 @@
 			buildConfigurationList = DED28999D03FF23CC962352C /* Build configuration list for PBXNativeTarget "FinderKit" */;
 			buildPhases = (
 				B1CEE63C0DDDCC4490921574 /* Sources */,
+				4FB026FFD191504F83A56DEC /* Resources */,
 				5E6717310114C9B651D8B6B2 /* Frameworks */,
 				57737DA70664EBB1274A2E95 /* Embed Foundation Extensions */,
 			);
@@ -201,6 +216,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		4FB026FFD191504F83A56DEC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85BAADB609DC4AF2E55CDCD5 /* upgrade.sh in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		7F22D1C85E3B8B38228B635A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -216,6 +242,7 @@
 			files = (
 				615407FCCDAB147E2EFB5408 /* FinderKitApp.swift in Sources */,
 				10F74C0679548FFBFFF00E78 /* SettingsView.swift in Sources */,
+				DF3500F1616A29CB2615CB18 /* UpdateCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,7 +272,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.alexandredias.finder-kit.finder-sync";
 				PRODUCT_NAME = FinderKitExtension;
 				SDKROOT = macosx;
@@ -386,7 +413,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.alexandredias.finder-kit";
 				PRODUCT_NAME = FinderKit;
 				SDKROOT = macosx;
@@ -408,7 +435,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.alexandredias.finder-kit";
 				PRODUCT_NAME = FinderKit;
 				SDKROOT = macosx;
@@ -431,7 +458,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.alexandredias.finder-kit.finder-sync";
 				PRODUCT_NAME = FinderKitExtension;
 				SDKROOT = macosx;

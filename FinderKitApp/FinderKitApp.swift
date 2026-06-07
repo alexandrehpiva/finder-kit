@@ -14,5 +14,6 @@ struct FinderKitApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        UpdateCoordinator.shared.scheduleBackgroundCheck()
     }
 }

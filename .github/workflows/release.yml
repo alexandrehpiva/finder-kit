@@ -30,6 +30,13 @@ jobs:
             fi
           fi
 
+      - name: Generate Xcode project
+        run: |
+          cp scripts/upgrade.sh FinderKitApp/Resources/upgrade.sh
+          chmod +x FinderKitApp/Resources/upgrade.sh
+          brew install xcodegen
+          xcodegen generate
+
       - name: Build app + CLI
         run: |
           swift build -c release

@@ -13,6 +13,14 @@ Arquitetura preparada para novas ações no mesmo app (host + extensão Finder S
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - Swift 5.9+
 
+## Atualizar
+
+```bash
+finder-kit upgrade
+```
+
+Ou: o app verifica o GitHub ao iniciar e pergunta se deseja atualizar (v1.2.0+).
+
 ## Instalação
 
 ### Sem Xcode (release pré-compilada)

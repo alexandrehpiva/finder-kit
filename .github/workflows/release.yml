@@ -14,7 +14,7 @@ env:
 
 jobs:
   release:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -29,9 +29,6 @@ jobs:
               echo "aviso: VERSION ($FILE_VER) difere da tag ($TAG)"
             fi
           fi
-
-      - name: Install XcodeGen
-        run: brew install xcodegen
 
       - name: Build app + CLI
         run: |

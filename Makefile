@@ -23,7 +23,8 @@ xcodeproj:
 	}
 	xcodegen generate
 
-build-app: xcodeproj
+build-app:
+	@test -d FinderKit.xcodeproj || $(MAKE) xcodegen
 	xcodebuild \
 		-project FinderKit.xcodeproj \
 		-scheme FinderKit \

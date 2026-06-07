@@ -90,11 +90,21 @@ make uninstall
 ## Desenvolvimento
 
 ```bash
+make setup-hooks   # uma vez: pre-commit + gitleaks (bloqueia segredos no commit)
 make test          # testes SPM (FinderKitCore)
 make build-cli     # só CLI
 make build-app     # app + extensão via Xcode
 make clean
 ```
+
+### Segurança (pre-commit)
+
+```bash
+brew install pre-commit   # se ainda não tiver
+make setup-hooks
+```
+
+Cada `git commit` roda **gitleaks** nos arquivos staged. Para pular em emergência: `SKIP=gitleaks git commit ...`
 
 ### Árvore
 

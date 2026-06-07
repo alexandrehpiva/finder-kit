@@ -1,4 +1,12 @@
-.PHONY: build build-cli build-app test install install-cli install-app uninstall clean xcodeproj
+.PHONY: build build-cli build-app test install install-cli install-app uninstall clean xcodeproj setup-hooks
+
+setup-hooks:
+	@command -v pre-commit >/dev/null 2>&1 || { \
+		echo "pre-commit não encontrado. Instale com: brew install pre-commit"; \
+		exit 1; \
+	}
+	pre-commit install
+	@echo "Hooks instalados em .git/hooks/pre-commit (gitleaks)"
 
 VERSION := $(shell tr -d ' \n' < VERSION)
 BINARY_NAME = finder-kit

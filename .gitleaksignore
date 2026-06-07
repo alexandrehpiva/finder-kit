@@ -1,0 +1,9 @@
+# Artefatos locais — nunca commitar; ignorar em varreduras no disco
+.build/
+**/.build/**
+DerivedData/
+**/DerivedData/**
+.swiftpm/
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*

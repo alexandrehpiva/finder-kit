@@ -1,0 +1,6 @@
+# Hooks de pre-commit — instalar: make setup-hooks (ou pre-commit install)
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

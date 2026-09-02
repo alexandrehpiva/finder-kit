@@ -45,21 +45,71 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     source: .host,
                     fields: ["path": folderPath, "error": error.localizedDescription]
                 )
-                presentAlert(title: "Finder Kit", message: error.localizedDescription)
+                presentAlert(title: "Finder Kit", message: error.localizedDescription, style: .warning)
             }
         case .copyPath(let folderPath):
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(folderPath, forType: .string)
             FinderKitLog.shared.info("host.copy_path.ok", source: .host, fields: ["path": folderPath])
+        case .analyze(let folderPath):
+            analyzeFolder(at: folderPath)
         }
     }
 
-    private func presentAlert(title: String, message: String) {
+    private func analyzeFolder(at folderPath: String) {
+        FinderKitLog.shared.info("host.analyze.start", source: .host, fields: ["path": folderPath])
+        DispatchQueue.global(qos: .userInitiated).async {
+            let folderURL = URL(fileURLWithPath: folderPath, isDirectory: true)
+            let result: Result<FolderStats, Error>
+            do {
+                let stats = try FolderAnalyzer.analyze(at: folderURL)
+                result = .success(stats)
+                FinderKitLog.shared.info(
+                    "host.analyze.ok",
+                    source: .host,
+                    fields: [
+                        "path": folderPath,
+                        "bytes": String(stats.totalBytes),
+                        "files": String(stats.fileCount),
+                        "dirs": String(stats.directoryCount),
+                    ]
+                )
+            } catch {
+                result = .failure(error)
+                FinderKitLog.shared.error(
+                    "host.analyze.fail",
+                    source: .host,
+                    fields: ["path": folderPath, "error": error.localizedDescription]
+                )
+            }
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let stats):
+                    self.presentAlert(
+                        title: "Finder Kit — \(folderURL.lastPathComponent)",
+                        message: """
+                        Tamanho estimado: \(stats.formattedSize)
+                        Arquivos: \(stats.fileCount)
+                        Pastas: \(stats.directoryCount)
+
+                        Contagem recursiva (arquivos visíveis no Finder).
+                        """,
+                        style: .informational
+                    )
+                case .failure(let error):
+                    self.presentAlert(title: "Finder Kit", message: error.localizedDescription, style: .warning)
+                }
+            }
+        }
+    }
+
+    private func presentAlert(title: String, message: String, style: NSAlert.Style = .warning) {
+        NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = message
-        alert.alertStyle = .warning
+        alert.alertStyle = style
         alert.addButton(withTitle: "OK")
         alert.runModal()
     }

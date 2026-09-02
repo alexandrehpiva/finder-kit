@@ -6,7 +6,7 @@ Utilitário macOS genérico para incrementos no **Finder**. Funcionalidades no m
 - **Abrir no Obsidian** → abre a pasta selecionada (ou o fundo da janela) no Obsidian
 - **Copiar caminho** → path POSIX no clipboard (várias pastas: um por linha)
 
-Arquitetura: host + extensão Finder Sync; ações sensíveis a sandbox (abrir apps) passam pelo host via deep link `finderkit://`.
+Arquitetura: host + extensão Finder Sync; ações bloqueadas pelo sandbox (abrir apps, **calcular tamanho** em volumes externos) passam pelo host via `finderkit://`.
 
 ## Requisitos
 

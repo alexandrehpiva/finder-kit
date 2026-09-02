@@ -78,6 +78,14 @@ struct FinderKitDeepLinkTests {
         #expect(action == .openObsidian(folderPath: path))
     }
 
+    @Test("Given path, When makeAnalyze+parse, Then analyze round-trip")
+    func analyzeRoundTrip() {
+        let path = "/Volumes/SSD Externo - Ale/Estudos-Alexandre/FIAP/Dev-Leadership/extracted"
+        let url = FinderKitDeepLink.makeAnalyzeURL(folderPath: path)
+        #expect(url.host == "analyze")
+        #expect(FinderKitDeepLink.parse(url) == .analyze(folderPath: path))
+    }
+
     @Test("Given path, When makeCopyPath+parse, Then copyPath round-trip")
     func copyPathRoundTrip() {
         let path = "/Volumes/SSD Externo - Ale/Estudos-Alexandre/FIAP/Dev-Leadership"

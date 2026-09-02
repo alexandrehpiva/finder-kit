@@ -16,9 +16,8 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 ## Fluxo “Calcular tamanho”
 
 1. Usuário seleciona pasta no Finder → menu contextual
-2. Extensão lê `FIFinderSyncController.default().selectedItemURLs()`
-3. `FolderAnalyzer.analyze` em background (`DispatchQueue.global`)
-4. `NSAlert` na main thread com resultado (**trava o Finder** se modal na extensão — ver logs `analyze.present_ui`)
+2. Extensão lê `FIFinderSyncController.default().selectedItemURLs()` e abre `finderkit://analyze?path=…`
+3. Host **sem sandbox** roda `FolderAnalyzer.analyze` e mostra `NSAlert` (não na extensão — senão o Finder trava e, em `/Volumes`, a enumeração sandboxed volta **0 bytes / 0 arquivos** sem erro)
 
 ## Fluxo “Abrir no Obsidian”
 

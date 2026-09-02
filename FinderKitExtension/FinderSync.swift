@@ -100,43 +100,7 @@ final class FinderKitSync: FIFinderSync {
             return
         }
 
-        FinderKitLog.shared.info(
-            "analyze.start",
-            source: .appex,
-            fields: ["path": folderURL.path]
-        )
-
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            let result: Result<FolderStats, Error>
-            do {
-                let stats = try SecurityScopedAccess.withAccess(to: folderURL) {
-                    try FolderAnalyzer.analyze(at: folderURL)
-                }
-                result = .success(stats)
-                FinderKitLog.shared.info(
-                    "analyze.ok",
-                    source: .appex,
-                    fields: [
-                        "path": folderURL.path,
-                        "bytes": String(stats.totalBytes),
-                        "files": String(stats.fileCount),
-                        "dirs": String(stats.directoryCount),
-                    ]
-                )
-            } catch {
-                result = .failure(error)
-                FinderKitLog.shared.error(
-                    "analyze.fail",
-                    source: .appex,
-                    fields: ["path": folderURL.path, "error": error.localizedDescription]
-                )
-            }
-
-            DispatchQueue.main.async {
-                FinderKitLog.shared.info("analyze.present_ui", source: .appex, fields: ["path": folderURL.path])
-                self?.presentResult(result, folderName: folderURL.lastPathComponent)
-            }
-        }
+        requestHostAnalyze(folder: folderURL)
     }
 
     @objc private func openSelectedFoldersInObsidian(_ sender: NSMenuItem) {
@@ -173,6 +137,23 @@ final class FinderKitSync: FIFinderSync {
             return
         }
         requestHostCopyPath(folders: [folderURL])
+    }
+
+    /// A extensão é sandboxed: enumerar `/Volumes` devolve 0/0/0 sem erro. O host analisa e mostra o alerta.
+    private func requestHostAnalyze(folder: URL) {
+        FinderKitLog.shared.info("analyze.request", source: .appex, fields: ["path": folder.path])
+        let deepLink = FinderKitDeepLink.makeAnalyzeURL(folderURL: folder)
+        let opened = NSWorkspace.shared.open(deepLink)
+        if !opened {
+            FinderKitLog.shared.error("analyze.host_open_failed", source: .appex, fields: ["path": folder.path])
+            presentAlert(
+                title: "Finder Kit",
+                message: """
+                Não foi possível acionar o FinderKit.app para calcular o tamanho.
+                Confirme que o app está em /Applications ou ~/Applications e abra-o uma vez.
+                """
+            )
+        }
     }
 
     /// A extensão é sandboxed; o host (sem sandbox) executa `open -a Obsidian`.
@@ -224,24 +205,6 @@ final class FinderKitSync: FIFinderSync {
                 Confirme que o app está em /Applications ou ~/Applications e abra-o uma vez.
                 """
             )
-        }
-    }
-
-    private func presentResult(_ result: Result<FolderStats, Error>, folderName: String) {
-        switch result {
-        case .success(let stats):
-            presentAlert(
-                title: "Finder Kit — \(folderName)",
-                message: """
-                Tamanho estimado: \(stats.formattedSize)
-                Arquivos: \(stats.fileCount)
-                Pastas: \(stats.directoryCount)
-
-                Contagem recursiva (arquivos visíveis no Finder).
-                """
-            )
-        case .failure(let error):
-            presentAlert(title: "Finder Kit", message: error.localizedDescription)
         }
     }
 

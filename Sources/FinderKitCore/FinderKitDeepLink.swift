@@ -5,10 +5,12 @@ public enum FinderKitDeepLink {
     public static let scheme = "finderkit"
     public static let openObsidianHost = "open-obsidian"
     public static let copyPathHost = "copy-path"
+    public static let analyzeHost = "analyze"
 
     public enum Action: Equatable, Sendable {
         case openObsidian(folderPath: String)
         case copyPath(folderPath: String)
+        case analyze(folderPath: String)
     }
 
     /// `finderkit://open-obsidian?path=/caminho/absoluto`
@@ -29,6 +31,15 @@ public enum FinderKitDeepLink {
         makeCopyPathURL(folderPath: folderURL.path)
     }
 
+    /// `finderkit://analyze?path=/caminho/absoluto` — análise no host (sem sandbox da extensão).
+    public static func makeAnalyzeURL(folderPath: String) -> URL {
+        makeURL(host: analyzeHost, folderPath: folderPath)
+    }
+
+    public static func makeAnalyzeURL(folderURL: URL) -> URL {
+        makeAnalyzeURL(folderPath: folderURL.path)
+    }
+
     public static func parse(_ url: URL) -> Action? {
         guard url.scheme?.lowercased() == scheme else { return nil }
 
@@ -45,6 +56,8 @@ public enum FinderKitDeepLink {
             return .openObsidian(folderPath: path)
         case copyPathHost:
             return .copyPath(folderPath: path)
+        case analyzeHost:
+            return .analyze(folderPath: path)
         default:
             return nil
         }

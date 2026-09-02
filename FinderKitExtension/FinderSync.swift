@@ -5,8 +5,24 @@ import FinderSync
 final class FinderKitSync: FIFinderSync {
     override init() {
         super.init()
-        // Monitora volumes para o Finder exibir o menu em pastas do usuário.
-        FIFinderSyncController.default().directoryURLs = [URL(fileURLWithPath: "/")]
+        refreshMonitoredDirectories()
+        let center = NSWorkspace.shared.notificationCenter
+        center.addObserver(
+            self,
+            selector: #selector(refreshMonitoredDirectories),
+            name: NSWorkspace.didMountNotification,
+            object: nil
+        )
+        center.addObserver(
+            self,
+            selector: #selector(refreshMonitoredDirectories),
+            name: NSWorkspace.didUnmountNotification,
+            object: nil
+        )
+    }
+
+    @objc private func refreshMonitoredDirectories() {
+        FIFinderSyncController.default().directoryURLs = FinderSyncRoots.directoryURLs()
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {

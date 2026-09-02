@@ -60,7 +60,10 @@ install-app:
 	@mkdir -p $(APPS_DIR)
 	rm -rf $(APP_BUNDLE)
 	cp -R $(XCODE_PRODUCTS)/$(APP_NAME).app $(APP_BUNDLE)
-	codesign --force --deep --sign - $(APP_BUNDLE)
+	# Assinar nested appex com entitlements ANTES do host (sem --deep no host).
+	codesign --force --sign - --entitlements FinderKitExtension/FinderKitExtension.entitlements --timestamp=none "$(APP_BUNDLE)/Contents/PlugIns/FinderKitExtension.appex"
+	codesign --force --sign - --entitlements FinderKitApp/FinderKit.entitlements --timestamp=none "$(APP_BUNDLE)"
+	codesign --verify --deep --strict "$(APP_BUNDLE)"
 
 register-extension:
 	@if [ -d "$(EXTENSION_APPEX)" ]; then \

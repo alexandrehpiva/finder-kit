@@ -45,8 +45,19 @@ jobs:
       - name: Ad-hoc sign app bundle
         run: |
           APP="build/DerivedData/Build/Products/Release/FinderKit.app"
-          codesign --force --deep --sign - "$APP"
+          APPEX="$APP/Contents/PlugIns/FinderKitExtension.appex"
+          # Nested first, WITH entitlements. `codesign --deep` sem entitlements
+          # remove sandbox da .appex e o pluginkit recusa registrar a extensão.
+          codesign --force --sign - \
+            --entitlements FinderKitExtension/FinderKitExtension.entitlements \
+            --timestamp=none \
+            "$APPEX"
+          codesign --force --sign - \
+            --entitlements FinderKitApp/FinderKit.entitlements \
+            --timestamp=none \
+            "$APP"
           codesign --verify --deep --strict "$APP"
+          codesign -d --entitlements - "$APPEX" | grep -q 'app-sandbox'
 
       - name: Package artifacts
         run: |

@@ -83,6 +83,19 @@ else
   find "${APP_PATH}" -exec xattr -c {} \; 2>/dev/null || true
 fi
 
+# Garante entitlements na .appex (releases antigas com `codesign --deep` sem
+# entitlements falhavam no pluginkit — extensão nem aparecia na lista).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+EXT_ENT="${REPO_ROOT}/FinderKitExtension/FinderKitExtension.entitlements"
+HOST_ENT="${REPO_ROOT}/FinderKitApp/FinderKit.entitlements"
+if [[ -f "$EXT_ENT" && -f "$HOST_ENT" ]]; then
+  codesign --force --sign - --entitlements "$EXT_ENT" --timestamp=none \
+    "${APP_PATH}/Contents/PlugIns/FinderKitExtension.appex"
+  codesign --force --sign - --entitlements "$HOST_ENT" --timestamp=none \
+    "${APP_PATH}"
+fi
+
 pluginkit -a "${APP_PATH}/Contents/PlugIns/FinderKitExtension.appex"
 pluginkit -e use -i "${EXTENSION_ID}"
 
@@ -91,3 +104,8 @@ sleep 1
 killall Finder 2>/dev/null || true
 
 echo "Finder Kit ${VERSION} instalado em ${APP_PATH}"
+if pluginkit -m -A 2>/dev/null | grep -q "${EXTENSION_ID}"; then
+  echo "Extensão registrada no pluginkit."
+else
+  echo "aviso: extensão ainda não listada — Ajustes → Geral → Itens de Início e Extensões → (i) Extensões do Finder → ligue FinderKit"
+fi

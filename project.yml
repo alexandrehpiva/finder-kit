@@ -27,7 +27,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.alexandredias.finder-kit
       INFOPLIST_FILE: bundle/FinderKit-Info.plist
       CODE_SIGN_ENTITLEMENTS: FinderKitApp/FinderKit.entitlements
-      MARKETING_VERSION: "1.3.5"
+      MARKETING_VERSION: "1.3.6"
       CURRENT_PROJECT_VERSION: "1"
       SWIFT_VERSION: "5.9"
       CODE_SIGN_STYLE: Automatic
@@ -46,7 +46,7 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.alexandredias.finder-kit.finder-sync
       INFOPLIST_FILE: bundle/FinderKitExtension-Info.plist
       CODE_SIGN_ENTITLEMENTS: FinderKitExtension/FinderKitExtension.entitlements
-      MARKETING_VERSION: "1.3.5"
+      MARKETING_VERSION: "1.3.6"
       CURRENT_PROJECT_VERSION: "1"
       SWIFT_VERSION: "5.9"
       CODE_SIGN_STYLE: Automatic

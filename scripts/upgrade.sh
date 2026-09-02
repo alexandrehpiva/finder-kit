@@ -138,14 +138,25 @@ else
   echo "aviso: extensão ainda não listada — Ajustes → Geral → Itens de Início e Extensões → (i) Extensões do Finder → ligue FinderKit"
 fi
 
+_fk_say() {
+  printf '%s\n' "$1" > /dev/tty 2>/dev/null || printf '%s\n' "$1"
+}
+
+# SIGTERM no Finder com Finder Sync (esta extensão + MEGA/Norton) frequentemente
+# nunca retorna — o prompt [s/N] parecia travar após Enter. SIGKILL; não esperar.
+restart_finder_windows() {
+  _fk_say "Reiniciando o Finder…"
+  /usr/bin/killall -KILL Finder >/dev/null 2>&1 &
+  _fk_say "Finder reiniciado."
+}
+
 prompt_restart_finder() {
   if [[ "${RESTART_FINDER}" == "yes" ]]; then
-    killall Finder 2>/dev/null || true
-    echo "Finder reiniciado."
+    restart_finder_windows
     return
   fi
   if [[ ! -e /dev/tty ]]; then
-    echo "Finder não foi reiniciado (sem terminal). Quando quiser: killall Finder"
+    echo "Finder não foi reiniciado (sem terminal). Quando quiser: killall -KILL Finder"
     return
   fi
   printf "Reiniciar as janelas do Finder agora? [s/N] " > /dev/tty
@@ -153,11 +164,10 @@ prompt_restart_finder() {
   IFS= read -r reply < /dev/tty || true
   case "$(printf '%s' "$reply" | tr '[:upper:]' '[:lower:]')" in
     s|sim|y|yes)
-      killall Finder 2>/dev/null || true
-      echo "Finder reiniciado."
+      restart_finder_windows
       ;;
     *)
-      echo "Ok. Quando quiser: killall Finder"
+      printf '%s\n' "Ok. Quando quiser: killall -KILL Finder" > /dev/tty 2>/dev/null || echo "Ok. Quando quiser: killall -KILL Finder"
       ;;
   esac
 }

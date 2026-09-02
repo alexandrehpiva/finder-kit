@@ -23,7 +23,10 @@ let package = Package(
                 "FinderKitCore",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            path: "Sources/finder-kit"
+            path: "Sources/finder-kit",
+            linkerSettings: [
+                .linkedFramework("AppKit"),
+            ]
         ),
         .testTarget(
             name: "FinderKitCoreTests",

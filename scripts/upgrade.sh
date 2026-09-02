@@ -99,6 +99,30 @@ fi
 pluginkit -a "${APP_PATH}/Contents/PlugIns/FinderKitExtension.appex"
 pluginkit -e use -i "${EXTENSION_ID}"
 
+SHARE_DIR="${HOME}/.local/share/finder-kit"
+mkdir -p "${SHARE_DIR}" "${HOME}/.local/bin"
+SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+DEST="${SHARE_DIR}/upgrade.sh"
+if [[ "$SRC" != "$DEST" ]]; then
+  install -m 755 "$SRC" "$DEST"
+else
+  chmod 755 "$DEST"
+fi
+
+CLI_URL="$(python3 -c "
+import sys, json
+r = json.load(sys.stdin)
+for a in r.get('assets', []):
+    n = a.get('name', '')
+    if n.startswith('finder-kit-') and n.endswith('-macos-arm64'):
+        print(a['browser_download_url'])
+        break
+" <<<"$RELEASE_JSON" || true)"
+if [[ -n "${CLI_URL}" ]]; then
+  curl -fsSL -o "${TMP}/finder-kit" "${CLI_URL}"
+  install -m 755 "${TMP}/finder-kit" "${HOME}/.local/bin/finder-kit"
+fi
+
 open "${APP_PATH}"
 sleep 1
 killall Finder 2>/dev/null || true

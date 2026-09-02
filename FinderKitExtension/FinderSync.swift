@@ -54,6 +54,13 @@ final class FinderKitSync: FIFinderSync {
             keyEquivalent: ""
         )
         obsidian.target = self
+
+        let copyPath = menu.addItem(
+            withTitle: "Copiar caminho",
+            action: #selector(copySelectedFolderPaths(_:)),
+            keyEquivalent: ""
+        )
+        copyPath.target = self
         return menu
     }
 
@@ -67,6 +74,13 @@ final class FinderKitSync: FIFinderSync {
             keyEquivalent: ""
         )
         obsidian.target = self
+
+        let copyPath = menu.addItem(
+            withTitle: "Copiar caminho",
+            action: #selector(copyTargetedFolderPath(_:)),
+            keyEquivalent: ""
+        )
+        copyPath.target = self
         return menu
     }
 
@@ -112,6 +126,24 @@ final class FinderKitSync: FIFinderSync {
         requestHostOpenObsidian(folders: [folderURL])
     }
 
+    @objc private func copySelectedFolderPaths(_ sender: NSMenuItem) {
+        let urls = FIFinderSyncController.default().selectedItemURLs() ?? []
+        let folders = urls.filter(\.hasDirectoryPath)
+        guard !folders.isEmpty else {
+            presentAlert(title: "Finder Kit", message: FinderKitError.noSelection.localizedDescription)
+            return
+        }
+        requestHostCopyPath(folders: folders)
+    }
+
+    @objc private func copyTargetedFolderPath(_ sender: NSMenuItem) {
+        guard let folderURL = FIFinderSyncController.default().targetedURL() else {
+            presentAlert(title: "Finder Kit", message: FinderKitError.noSelection.localizedDescription)
+            return
+        }
+        requestHostCopyPath(folders: [folderURL])
+    }
+
     /// A extensão é sandboxed; o host (sem sandbox) executa `open -a Obsidian`.
     private func requestHostOpenObsidian(folders: [URL]) {
         for folder in folders {
@@ -127,6 +159,28 @@ final class FinderKitSync: FIFinderSync {
                 )
                 return
             }
+        }
+    }
+
+    /// Clipboard geral: host copia o path POSIX (sandbox da extensão é instável no pasteboard).
+    private func requestHostCopyPath(folders: [URL]) {
+        let payload: String
+        do {
+            payload = try FolderPathClipboard.posixPaths(of: folders)
+        } catch {
+            presentAlert(title: "Finder Kit", message: error.localizedDescription)
+            return
+        }
+        let deepLink = FinderKitDeepLink.makeCopyPathURL(folderPath: payload)
+        let opened = NSWorkspace.shared.open(deepLink)
+        if !opened {
+            presentAlert(
+                title: "Finder Kit",
+                message: """
+                Não foi possível copiar o caminho via FinderKit.app.
+                Confirme que o app está em /Applications ou ~/Applications e abra-o uma vez.
+                """
+            )
         }
     }
 

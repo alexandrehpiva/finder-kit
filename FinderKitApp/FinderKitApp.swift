@@ -35,6 +35,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } catch {
                 presentAlert(title: "Finder Kit", message: error.localizedDescription)
             }
+        case .copyPath(let folderPath):
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(folderPath, forType: .string)
         }
     }
 

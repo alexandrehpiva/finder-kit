@@ -67,14 +67,12 @@ struct Upgrade: ParsableCommand {
   }
 
   private func resolveUpgradeScript() -> URL {
-    let bundled = Bundle.main.bundleURL
-      .deletingLastPathComponent()
-      .deletingLastPathComponent()
-      .appendingPathComponent("Resources/upgrade.sh")
+    let appResources = FinderKitPaths.installedAppURL
+      .appendingPathComponent("Contents/Resources/upgrade.sh")
 
     let candidates = [
       FinderKitPaths.upgradeScriptURL,
-      bundled,
+      appResources,
       URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         .appendingPathComponent("scripts/upgrade.sh"),
     ]

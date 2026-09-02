@@ -27,6 +27,13 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 3. Host sem sandbox recebe o URL e executa `ObsidianOpener` → `/usr/bin/open -a Obsidian.app <pasta>`
 4. CLI espelha: `finder-kit open-obsidian <pasta>`
 
+## Fluxo “Copiar caminho”
+
+1. Mesmos gatilhos de menu que Obsidian (item ou fundo da janela)
+2. Extensão abre `finderkit://copy-path?path=…` (várias pastas: paths com `\n`)
+3. Host copia para `NSPasteboard.general`
+4. CLI: `finder-kit copy-path <pasta>`
+
 ## Evolução futura
 
 - Novos itens de menu → `FinderKitExtension/FinderSync.swift`

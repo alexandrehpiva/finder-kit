@@ -20,6 +20,13 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 3. `FolderAnalyzer.analyze` em background (`DispatchQueue.global`)
 4. `NSAlert` na main thread com resultado
 
+## Fluxo “Abrir no Obsidian”
+
+1. Menu em pasta selecionada (`.contextualMenuForItems`) **ou** fundo da janela (`.contextualMenuForContainer` → `targetedURL()`)
+2. Extensão (sandbox) abre deep link `finderkit://open-obsidian?path=…`
+3. Host sem sandbox recebe o URL e executa `ObsidianOpener` → `/usr/bin/open -a Obsidian.app <pasta>`
+4. CLI espelha: `finder-kit open-obsidian <pasta>`
+
 ## Evolução futura
 
 - Novos itens de menu → `FinderKitExtension/FinderSync.swift`

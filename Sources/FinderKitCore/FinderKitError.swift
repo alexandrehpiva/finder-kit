@@ -7,6 +7,8 @@ public enum FinderKitError: Error, LocalizedError, Sendable {
     case sandboxAccessDenied(URL)
     case releaseCheckFailed(String)
     case upgradeFailed(String)
+    case obsidianNotFound
+    case obsidianOpenFailed(String)
 
     public var errorDescription: String? {
         switch self {
@@ -25,6 +27,13 @@ public enum FinderKitError: Error, LocalizedError, Sendable {
             return "Não foi possível verificar atualizações: \(reason)"
         case .upgradeFailed(let reason):
             return "Falha ao atualizar: \(reason)"
+        case .obsidianNotFound:
+            return """
+            Obsidian.app não encontrado em /Applications nem em ~/Applications.
+            Instale o Obsidian ou mova o .app para uma dessas pastas.
+            """
+        case .obsidianOpenFailed(let reason):
+            return "Não foi possível abrir a pasta no Obsidian: \(reason)"
         }
     }
 }

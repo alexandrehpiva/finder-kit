@@ -10,18 +10,47 @@ final class FinderKitSync: FIFinderSync {
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
-        guard menuKind == .contextualMenuForItems else { return nil }
+        switch menuKind {
+        case .contextualMenuForItems:
+            return menuForSelectedItems()
+        case .contextualMenuForContainer:
+            return menuForContainerBackground()
+        default:
+            return nil
+        }
+    }
 
+    private func menuForSelectedItems() -> NSMenu? {
         let urls = FIFinderSyncController.default().selectedItemURLs() ?? []
         guard urls.contains(where: { $0.hasDirectoryPath }) else { return nil }
 
         let menu = NSMenu(title: "")
-        let item = menu.addItem(
+        let analyze = menu.addItem(
             withTitle: "Finder Kit — Calcular tamanho…",
             action: #selector(analyzeSelectedFolder(_:)),
             keyEquivalent: ""
         )
-        item.target = self
+        analyze.target = self
+
+        let obsidian = menu.addItem(
+            withTitle: "Abrir no Obsidian",
+            action: #selector(openSelectedFoldersInObsidian(_:)),
+            keyEquivalent: ""
+        )
+        obsidian.target = self
+        return menu
+    }
+
+    private func menuForContainerBackground() -> NSMenu? {
+        guard FIFinderSyncController.default().targetedURL() != nil else { return nil }
+
+        let menu = NSMenu(title: "")
+        let obsidian = menu.addItem(
+            withTitle: "Abrir no Obsidian",
+            action: #selector(openTargetedFolderInObsidian(_:)),
+            keyEquivalent: ""
+        )
+        obsidian.target = self
         return menu
     }
 
@@ -45,6 +74,42 @@ final class FinderKitSync: FIFinderSync {
 
             DispatchQueue.main.async {
                 self?.presentResult(result, folderName: folderURL.lastPathComponent)
+            }
+        }
+    }
+
+    @objc private func openSelectedFoldersInObsidian(_ sender: NSMenuItem) {
+        let urls = FIFinderSyncController.default().selectedItemURLs() ?? []
+        let folders = urls.filter(\.hasDirectoryPath)
+        guard !folders.isEmpty else {
+            presentAlert(title: "Finder Kit", message: FinderKitError.noSelection.localizedDescription)
+            return
+        }
+        requestHostOpenObsidian(folders: folders)
+    }
+
+    @objc private func openTargetedFolderInObsidian(_ sender: NSMenuItem) {
+        guard let folderURL = FIFinderSyncController.default().targetedURL() else {
+            presentAlert(title: "Finder Kit", message: FinderKitError.noSelection.localizedDescription)
+            return
+        }
+        requestHostOpenObsidian(folders: [folderURL])
+    }
+
+    /// A extensão é sandboxed; o host (sem sandbox) executa `open -a Obsidian`.
+    private func requestHostOpenObsidian(folders: [URL]) {
+        for folder in folders {
+            let deepLink = FinderKitDeepLink.makeOpenObsidianURL(folderURL: folder)
+            let opened = NSWorkspace.shared.open(deepLink)
+            if !opened {
+                presentAlert(
+                    title: "Finder Kit",
+                    message: """
+                    Não foi possível acionar o FinderKit.app para abrir o Obsidian.
+                    Confirme que o app está em /Applications ou ~/Applications e abra-o uma vez.
+                    """
+                )
+                return
             }
         }
     }

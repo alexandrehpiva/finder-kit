@@ -1,10 +1,11 @@
 # Finder Kit
 
-Utilitário macOS genérico para incrementos no **Finder**. A primeira funcionalidade adiciona ao menu contextual (botão direito) em pastas:
+Utilitário macOS genérico para incrementos no **Finder**. Funcionalidades no menu contextual (botão direito):
 
-**Finder Kit — Calcular tamanho…** → tamanho total estimado, quantidade de arquivos e subpastas.
+- **Finder Kit — Calcular tamanho…** → tamanho total estimado, arquivos e subpastas (em pastas selecionadas)
+- **Abrir no Obsidian** → abre a pasta selecionada (ou o fundo da janela do Finder) no Obsidian (`open -a Obsidian <pasta>`)
 
-Arquitetura preparada para novas ações no mesmo app (host + extensão Finder Sync).
+Arquitetura: host + extensão Finder Sync; ações sensíveis a sandbox (abrir apps) passam pelo host via deep link `finderkit://`.
 
 ## Requisitos
 
@@ -70,15 +71,16 @@ Para conferir nos Ajustes: **Geral → Itens de Início de Sessão e Extensões 
 
 ### Finder
 
-1. Botão direito em uma **pasta**
-2. **Finder Kit — Calcular tamanho…**
-3. Diálogo com tamanho, arquivos e pastas (varredura recursiva, sem ocultos)
+1. Botão direito em uma **pasta** (ou no **fundo** da janela aberta)
+2. **Finder Kit — Calcular tamanho…** (só em pasta selecionada) e/ou **Abrir no Obsidian**
+3. Obsidian: equivalente a `open -a Obsidian "/caminho/da/pasta"` (o host FinderKit precisa estar instalado)
 
 ### CLI (teste / automação)
 
 ```bash
 finder-kit analyze ~/Downloads
 finder-kit analyze ~/Projects --include-hidden
+finder-kit open-obsidian "/Volumes/SSD Externo - Ale/Estudos-Alexandre/FIAP/Dev-Leadership"
 ```
 
 ## Desinstalar

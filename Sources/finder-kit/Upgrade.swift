@@ -71,7 +71,9 @@ struct Upgrade: ParsableCommand {
     let task = Process()
     task.executableURL = URL(fileURLWithPath: "/bin/bash")
     task.arguments = args
-    task.standardInput = FileHandle.standardInput
+    // O bash fica noutro process group; stdin=tty faria `read` tomar SIGTTIN.
+    // O script pergunta o restart via osascript, não pelo terminal.
+    task.standardInput = FileHandle.nullDevice
     task.standardOutput = FileHandle.standardOutput
     task.standardError = FileHandle.standardError
     try task.run()

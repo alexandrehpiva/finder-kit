@@ -15,11 +15,19 @@ struct Upgrade: ParsableCommand {
   var version: String?
 
   func run() throws {
+    FinderKitLog.shared.installCrashReporting(source: .cli)
     if check {
       try runCheckOnly()
       return
     }
-    try runUpgradeScript()
+    FinderKitLog.shared.info("cli.upgrade.start", source: .cli)
+    do {
+      try runUpgradeScript()
+      FinderKitLog.shared.info("cli.upgrade.ok", source: .cli)
+    } catch {
+      FinderKitLog.shared.error("cli.upgrade.fail", source: .cli, fields: ["error": error.localizedDescription])
+      throw error
+    }
   }
 
   private func runCheckOnly() throws {

@@ -5,6 +5,8 @@ import FinderSync
 final class FinderKitSync: FIFinderSync {
     override init() {
         super.init()
+        FinderKitLog.shared.installCrashReporting(source: .appex)
+        FinderKitLog.shared.info("appex.init", source: .appex)
         refreshMonitoredDirectories()
         let center = NSWorkspace.shared.notificationCenter
         center.addObserver(
@@ -22,7 +24,13 @@ final class FinderKitSync: FIFinderSync {
     }
 
     @objc private func refreshMonitoredDirectories() {
-        FIFinderSyncController.default().directoryURLs = FinderSyncRoots.directoryURLs()
+        let urls = FinderSyncRoots.directoryURLs()
+        FIFinderSyncController.default().directoryURLs = urls
+        FinderKitLog.shared.info(
+            "appex.monitor_volumes",
+            source: .appex,
+            fields: ["count": String(urls.count)]
+        )
     }
 
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
@@ -87,9 +95,16 @@ final class FinderKitSync: FIFinderSync {
     @objc private func analyzeSelectedFolder(_ sender: NSMenuItem) {
         let urls = FIFinderSyncController.default().selectedItemURLs() ?? []
         guard let folderURL = urls.first(where: { $0.hasDirectoryPath }) else {
+            FinderKitLog.shared.warn("analyze.no_selection", source: .appex)
             presentAlert(title: "Finder Kit", message: FinderKitError.noSelection.localizedDescription)
             return
         }
+
+        FinderKitLog.shared.info(
+            "analyze.start",
+            source: .appex,
+            fields: ["path": folderURL.path]
+        )
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let result: Result<FolderStats, Error>
@@ -98,11 +113,27 @@ final class FinderKitSync: FIFinderSync {
                     try FolderAnalyzer.analyze(at: folderURL)
                 }
                 result = .success(stats)
+                FinderKitLog.shared.info(
+                    "analyze.ok",
+                    source: .appex,
+                    fields: [
+                        "path": folderURL.path,
+                        "bytes": String(stats.totalBytes),
+                        "files": String(stats.fileCount),
+                        "dirs": String(stats.directoryCount),
+                    ]
+                )
             } catch {
                 result = .failure(error)
+                FinderKitLog.shared.error(
+                    "analyze.fail",
+                    source: .appex,
+                    fields: ["path": folderURL.path, "error": error.localizedDescription]
+                )
             }
 
             DispatchQueue.main.async {
+                FinderKitLog.shared.info("analyze.present_ui", source: .appex, fields: ["path": folderURL.path])
                 self?.presentResult(result, folderName: folderURL.lastPathComponent)
             }
         }
@@ -147,9 +178,15 @@ final class FinderKitSync: FIFinderSync {
     /// A extensão é sandboxed; o host (sem sandbox) executa `open -a Obsidian`.
     private func requestHostOpenObsidian(folders: [URL]) {
         for folder in folders {
+        FinderKitLog.shared.info(
+            "obsidian.request",
+            source: .appex,
+            fields: ["path": folder.path]
+        )
             let deepLink = FinderKitDeepLink.makeOpenObsidianURL(folderURL: folder)
             let opened = NSWorkspace.shared.open(deepLink)
             if !opened {
+                FinderKitLog.shared.error("obsidian.host_open_failed", source: .appex, fields: ["path": folder.path])
                 presentAlert(
                     title: "Finder Kit",
                     message: """
@@ -172,8 +209,14 @@ final class FinderKitSync: FIFinderSync {
             return
         }
         let deepLink = FinderKitDeepLink.makeCopyPathURL(folderPath: payload)
+        FinderKitLog.shared.info(
+            "copy_path.request",
+            source: .appex,
+            fields: ["path": payload]
+        )
         let opened = NSWorkspace.shared.open(deepLink)
         if !opened {
+            FinderKitLog.shared.error("copy_path.host_open_failed", source: .appex)
             presentAlert(
                 title: "Finder Kit",
                 message: """
@@ -203,6 +246,11 @@ final class FinderKitSync: FIFinderSync {
     }
 
     private func presentAlert(title: String, message: String) {
+        FinderKitLog.shared.info(
+            "ui.alert",
+            source: .appex,
+            fields: ["title": title, "message": String(message.prefix(200))]
+        )
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = message

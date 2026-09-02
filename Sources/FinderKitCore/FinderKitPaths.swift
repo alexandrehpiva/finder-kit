@@ -33,6 +33,10 @@ public enum FinderKitPaths {
       .appendingPathComponent(".local/share/\(shareDirectoryName)", isDirectory: true)
   }
 
+  public static var logDirectoryURL: URL {
+    FinderKitLog.defaultDirectory()
+  }
+
   public static var upgradeScriptURL: URL {
     sharedSupportURL.appendingPathComponent("upgrade.sh")
   }

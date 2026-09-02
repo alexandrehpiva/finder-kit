@@ -8,7 +8,7 @@ struct FinderKitCLI: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "finder-kit",
     abstract: "Utilitários Finder Kit (análise de pastas, etc.).",
-    subcommands: [Analyze.self, OpenObsidian.self, CopyPath.self, Upgrade.self]
+    subcommands: [Analyze.self, OpenObsidian.self, CopyPath.self, Logs.self, Upgrade.self]
   )
 }
 
@@ -25,11 +25,27 @@ struct Analyze: ParsableCommand {
   var includeHidden: Bool = false
 
   func run() throws {
+    FinderKitLog.shared.installCrashReporting(source: .cli)
     let url = URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
-    let stats = try FolderAnalyzer.analyze(at: url, skipsHiddenFiles: !includeHidden)
-    print(stats.rootURL.lastPathComponent)
-    print(stats.summaryLine)
-    print("bytes=\(stats.totalBytes)")
+    FinderKitLog.shared.info("cli.analyze.start", source: .cli, fields: ["path": url.path])
+    do {
+      let stats = try FolderAnalyzer.analyze(at: url, skipsHiddenFiles: !includeHidden)
+      FinderKitLog.shared.info(
+        "cli.analyze.ok",
+        source: .cli,
+        fields: ["path": url.path, "bytes": String(stats.totalBytes)]
+      )
+      print(stats.rootURL.lastPathComponent)
+      print(stats.summaryLine)
+      print("bytes=\(stats.totalBytes)")
+    } catch {
+      FinderKitLog.shared.error(
+        "cli.analyze.fail",
+        source: .cli,
+        fields: ["path": url.path, "error": error.localizedDescription]
+      )
+      throw error
+    }
   }
 }
 
@@ -43,9 +59,21 @@ struct OpenObsidian: ParsableCommand {
   var path: String
 
   func run() throws {
+    FinderKitLog.shared.installCrashReporting(source: .cli)
     let url = URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
-    try ObsidianOpener.openFolder(at: url)
-    print("Aberto no Obsidian: \(url.path)")
+    FinderKitLog.shared.info("cli.obsidian.start", source: .cli, fields: ["path": url.path])
+    do {
+      try ObsidianOpener.openFolder(at: url)
+      FinderKitLog.shared.info("cli.obsidian.ok", source: .cli, fields: ["path": url.path])
+      print("Aberto no Obsidian: \(url.path)")
+    } catch {
+      FinderKitLog.shared.error(
+        "cli.obsidian.fail",
+        source: .cli,
+        fields: ["path": url.path, "error": error.localizedDescription]
+      )
+      throw error
+    }
   }
 }
 
@@ -59,11 +87,31 @@ struct CopyPath: ParsableCommand {
   var path: String
 
   func run() throws {
+    FinderKitLog.shared.installCrashReporting(source: .cli)
     let url = URL(fileURLWithPath: (path as NSString).expandingTildeInPath, isDirectory: true)
-    let posix = try FolderPathClipboard.posixPath(of: url)
-    let pasteboard = NSPasteboard.general
-    pasteboard.clearContents()
-    pasteboard.setString(posix, forType: .string)
-    print(posix)
+    do {
+      let posix = try FolderPathClipboard.posixPath(of: url)
+      let pasteboard = NSPasteboard.general
+      pasteboard.clearContents()
+      pasteboard.setString(posix, forType: .string)
+      FinderKitLog.shared.info("cli.copy_path.ok", source: .cli, fields: ["path": posix])
+      print(posix)
+    } catch {
+      FinderKitLog.shared.error("cli.copy_path.fail", source: .cli, fields: ["error": error.localizedDescription])
+      throw error
+    }
+  }
+}
+
+struct Logs: ParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "logs",
+    abstract: "Mostra o caminho do log JSONL local (máx. 1 MiB)."
+  )
+
+  func run() {
+    FinderKitLog.shared.installCrashReporting(source: .cli)
+    print(FinderKitLog.shared.directoryURL.path)
+    print(FinderKitLog.shared.currentFileURL.path)
   }
 }

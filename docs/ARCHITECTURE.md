@@ -18,7 +18,7 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 1. Usuário seleciona pasta no Finder → menu contextual
 2. Extensão lê `FIFinderSyncController.default().selectedItemURLs()`
 3. `FolderAnalyzer.analyze` em background (`DispatchQueue.global`)
-4. `NSAlert` na main thread com resultado
+4. `NSAlert` na main thread com resultado (**trava o Finder** se modal na extensão — ver logs `analyze.present_ui`)
 
 ## Fluxo “Abrir no Obsidian”
 
@@ -33,6 +33,13 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 2. Extensão abre `finderkit://copy-path?path=…` (várias pastas: paths com `\n`)
 3. Host copia para `NSPasteboard.general`
 4. CLI: `finder-kit copy-path <pasta>`
+
+## Logs
+
+- Core: `FinderKitLog` (JSONL, 1 MiB, rotação `.1`)
+- Pasta: `~/Library/Group Containers/group.com.alexandredias.finder-kit/tmp/logs/`
+- App Group `group.com.alexandredias.finder-kit` no host e na extensão
+- CLI: `finder-kit logs`
 
 ## Evolução futura
 

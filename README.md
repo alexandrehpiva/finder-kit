@@ -83,7 +83,17 @@ finder-kit analyze ~/Downloads
 finder-kit analyze ~/Projects --include-hidden
 finder-kit open-obsidian "/Volumes/SSD Externo - Ale/Estudos-Alexandre/FIAP/Dev-Leadership"
 finder-kit copy-path ~/Downloads
+finder-kit logs
 ```
+
+### Logs (v1.3.3+)
+
+JSON Lines em:
+
+`~/Library/Group Containers/group.com.alexandredias.finder-kit/tmp/logs/finder-kit.jsonl`
+
+Máximo **1 MiB**; o arquivo anterior vira `finder-kit.jsonl.1`. Inclui ações do menu, CLI, host e `NSException` (`crash.ns_exception`).
+
 
 ## Desinstalar
 

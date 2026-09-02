@@ -14,6 +14,9 @@ struct Upgrade: ParsableCommand {
   @Option(name: .long, help: "Instala uma versão específica (ex: 1.0.1).")
   var version: String?
 
+  @Flag(name: .long, help: "Reinicia o Finder no fim, sem perguntar.")
+  var restartFinder: Bool = false
+
   func run() throws {
     FinderKitLog.shared.installCrashReporting(source: .cli)
     if check {
@@ -61,10 +64,14 @@ struct Upgrade: ParsableCommand {
     if let version {
       args.append(contentsOf: ["--version", version])
     }
+    if restartFinder {
+      args.append("--restart-finder")
+    }
 
     let task = Process()
     task.executableURL = URL(fileURLWithPath: "/bin/bash")
     task.arguments = args
+    task.standardInput = FileHandle.standardInput
     task.standardOutput = FileHandle.standardOutput
     task.standardError = FileHandle.standardError
     try task.run()

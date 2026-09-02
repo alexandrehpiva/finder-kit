@@ -1,12 +1,13 @@
 #!/bin/bash
 # Atualiza FinderKit.app da última release no GitHub (repo público).
-# Uso: upgrade.sh [--version X.Y.Z]
+# Uso: upgrade.sh [--version X.Y.Z] [--restart-finder]
 set -euo pipefail
 
 REPO="alexandrehpiva/finder-kit"
 APP_NAME="FinderKit"
 EXTENSION_ID="com.alexandredias.finder-kit.finder-sync"
 PIN_VERSION=""
+RESTART_FINDER=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -14,8 +15,12 @@ while [[ $# -gt 0 ]]; do
       PIN_VERSION="${2:-}"
       shift 2
       ;;
+    --restart-finder)
+      RESTART_FINDER="yes"
+      shift
+      ;;
     *)
-      echo "uso: $0 [--version X.Y.Z]"
+      echo "uso: $0 [--version X.Y.Z] [--restart-finder]"
       exit 1
       ;;
   esac
@@ -125,7 +130,6 @@ fi
 
 open "${APP_PATH}"
 sleep 1
-killall Finder 2>/dev/null || true
 
 echo "Finder Kit ${VERSION} instalado em ${APP_PATH}"
 if pluginkit -m -A 2>/dev/null | grep -q "${EXTENSION_ID}"; then
@@ -133,3 +137,29 @@ if pluginkit -m -A 2>/dev/null | grep -q "${EXTENSION_ID}"; then
 else
   echo "aviso: extensão ainda não listada — Ajustes → Geral → Itens de Início e Extensões → (i) Extensões do Finder → ligue FinderKit"
 fi
+
+prompt_restart_finder() {
+  if [[ "${RESTART_FINDER}" == "yes" ]]; then
+    killall Finder 2>/dev/null || true
+    echo "Finder reiniciado."
+    return
+  fi
+  if [[ ! -e /dev/tty ]]; then
+    echo "Finder não foi reiniciado (sem terminal). Quando quiser: killall Finder"
+    return
+  fi
+  printf "Reiniciar as janelas do Finder agora? [s/N] " > /dev/tty
+  local reply=""
+  IFS= read -r reply < /dev/tty || true
+  case "$(printf '%s' "$reply" | tr '[:upper:]' '[:lower:]')" in
+    s|sim|y|yes)
+      killall Finder 2>/dev/null || true
+      echo "Finder reiniciado."
+      ;;
+    *)
+      echo "Ok. Quando quiser: killall Finder"
+      ;;
+  esac
+}
+
+prompt_restart_finder

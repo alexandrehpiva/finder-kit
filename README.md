@@ -23,6 +23,8 @@ finder-kit upgrade
 
 Ou: o app verifica o GitHub ao iniciar e pergunta se deseja atualizar (v1.2.0+).
 
+No fim o script pergunta se deseja **reiniciar as janelas do Finder** (`killall Finder`). Sem perguntar: `finder-kit upgrade --restart-finder`.
+
 ## Instalação
 
 ### Sem Xcode (release pré-compilada)

@@ -92,7 +92,7 @@ finder-kit logs
 
 JSON Lines em:
 
-`~/Library/Group Containers/group.com.alexandredias.finder-kit/tmp/logs/finder-kit.jsonl`
+`~/Library/Logs/FinderKit/finder-kit.jsonl`
 
 Máximo **1 MiB**; o arquivo anterior vira `finder-kit.jsonl.1`. Inclui ações do menu, CLI, host e `NSException` (`crash.ns_exception`).
 

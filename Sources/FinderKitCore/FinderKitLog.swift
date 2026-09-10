@@ -2,11 +2,16 @@ import Foundation
 
 /// Log estruturado (JSON Lines) para host, extensão Finder Sync e CLI.
 ///
-/// Pasta local temporária compartilhada (App Group):
-/// `~/Library/Group Containers/group.com.alexandredias.finder-kit/tmp/logs/`
+/// Host e CLI: `~/Library/Logs/FinderKit/`
+/// Extensão sandboxed: o mesmo caminho relativo **dentro do container** da `.appex`
+/// (`…/Containers/com.alexandredias.finder-kit.finder-sync/Data/Library/Logs/FinderKit/`).
+///
+/// Não usar App Group: no macOS 15+ `containerURL(forSecurityApplicationGroupIdentifier:)`
+/// dispara o TCC “acessar dados de outros apps” quando o group não tem prefixo de Team ID
+/// e o binário não é Developer ID / App Store. Assinatura ad-hoc não persiste o Allow.
 /// Arquivo atual `finder-kit.jsonl` — no máximo 1 MiB; o giro anterior é `finder-kit.jsonl.1`.
 public final class FinderKitLog: @unchecked Sendable {
-    public static let applicationGroupID = "group.com.alexandredias.finder-kit"
+    public static let logsFolderName = "FinderKit"
     public static let maxFileBytes = 1_048_576
     public static let fileName = "finder-kit.jsonl"
     public static let rotatedFileName = "finder-kit.jsonl.1"
@@ -63,16 +68,8 @@ public final class FinderKitLog: @unchecked Sendable {
     }
 
     public static func defaultDirectory(fileManager: FileManager = .default) -> URL {
-        if let container = fileManager.containerURL(
-            forSecurityApplicationGroupIdentifier: applicationGroupID
-        ) {
-            return container.appendingPathComponent("tmp/logs", isDirectory: true)
-        }
-        return fileManager.homeDirectoryForCurrentUser
-            .appendingPathComponent(
-                "Library/Group Containers/\(applicationGroupID)/tmp/logs",
-                isDirectory: true
-            )
+        fileManager.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Logs/\(logsFolderName)", isDirectory: true)
     }
 
     public var directoryURL: URL {

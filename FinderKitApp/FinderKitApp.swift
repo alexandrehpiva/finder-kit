@@ -21,6 +21,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         UpdateCoordinator.shared.scheduleBackgroundCheck()
     }
 
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
+
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls {
             handleDeepLink(url)

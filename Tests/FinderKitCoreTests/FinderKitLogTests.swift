@@ -50,4 +50,12 @@ struct FinderKitLogTests {
         #expect(currentSize.intValue <= maxBytes)
         #expect(FileManager.default.fileExists(atPath: rotated.path))
     }
+
+    @Test("Given processo unsandboxed, When defaultDirectory, Then usa Library/Logs e não Group Containers")
+    func defaultDirectoryIsUserLogsNotAppGroup() {
+        let directory = FinderKitLog.defaultDirectory()
+        #expect(directory.path.contains("/Library/Logs/FinderKit"))
+        #expect(!directory.path.contains("Group Containers"))
+        #expect(!directory.path.contains("group.com.alexandredias.finder-kit"))
+    }
 }

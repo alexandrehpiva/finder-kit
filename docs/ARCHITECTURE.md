@@ -36,15 +36,16 @@ O Finder só carrega **Finder Sync Extensions** embutidas em um `.app` assinado.
 ## Logs
 
 - Core: `FinderKitLog` (JSONL, 1 MiB, rotação `.1`)
-- Pasta: `~/Library/Group Containers/group.com.alexandredias.finder-kit/tmp/logs/`
-- App Group `group.com.alexandredias.finder-kit` no host e na extensão
+- Host/CLI: `~/Library/Logs/FinderKit/`
+- Extensão: o mesmo caminho relativo **dentro do container** da `.appex` (sandbox)
+- Sem App Group — no macOS 15+ um group sem prefixo de Team ID dispara o TCC “acessar dados de outros apps” a cada `containerURL(forSecurityApplicationGroupIdentifier:)`
 - CLI: `finder-kit logs`
 
 ## Evolução futura
 
 - Novos itens de menu → `FinderKitExtension/FinderSync.swift`
 - Lógica nova → `Sources/FinderKitCore/`
-- UI dedicada (progresso) → host app SwiftUI + IPC com extensão (App Group)
+- UI dedicada (progresso) → host app SwiftUI + IPC com extensão (XPC; App Group só com Team ID prefixado + Developer ID)
 
 ## Padrão alinhado a `bot-wake`
 
